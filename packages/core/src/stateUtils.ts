@@ -10,7 +10,6 @@ import {
   isString,
   toTransitionConfigArray,
   normalizeTarget,
-  toStateValue,
   mapContext,
   toSCXMLEvent
 } from './utils';
@@ -66,7 +65,12 @@ import {
   resolveStop
 } from './actions';
 import { IS_PRODUCTION } from './environment';
-import { STATE_IDENTIFIER, NULL_EVENT, WILDCARD } from './constants';
+import {
+  STATE_IDENTIFIER,
+  NULL_EVENT,
+  WILDCARD,
+  STATE_DELIMITER
+} from './constants';
 import { isSpawnedActorRef } from './Actor';
 import { StateMachine } from './StateMachine';
 import { evaluateGuard, toGuardDefinition } from './guards';
@@ -419,8 +423,7 @@ export function formatTransition<
       ? transitionConfig.internal
       : normalizedTarget
       ? normalizedTarget.some(
-          (_target) =>
-            isString(_target) && _target[0] === stateNode.machine.delimiter
+          (_target) => isString(_target) && _target[0] === STATE_DELIMITER
         )
       : true;
   const { guards } = stateNode.machine.options;
@@ -607,7 +610,7 @@ export function formatInitialTransition<
   return formatTransition(stateNode, {
     target: toArray(_target.target).map((t) => {
       if (isString(t)) {
-        return isStateId(t) ? t : `${stateNode.machine.delimiter}${t}`;
+        return isStateId(t) ? t : `${STATE_DELIMITER}${t}`;
       }
 
       return t;
@@ -632,7 +635,7 @@ export function resolveTarget<
     if (!isString(target)) {
       return target;
     }
-    const isInternalTarget = target[0] === stateNode.machine.delimiter;
+    const isInternalTarget = target[0] === STATE_DELIMITER;
     // If internal target is defined on machine,
     // do not include machine key on target
     if (isInternalTarget && !stateNode.parent) {
@@ -753,10 +756,7 @@ function getStateNodeByPath<
       // throw e;
     }
   }
-  const arrayStatePath = toStatePath(
-    statePath,
-    stateNode.machine.delimiter
-  ).slice();
+  const arrayStatePath = toStatePath(statePath, STATE_DELIMITER).slice();
   let currentStateNode: StateNode<TContext, TEvent> = stateNode;
   while (arrayStatePath.length) {
     const key = arrayStatePath.shift()!;
@@ -778,13 +778,8 @@ export function getStateNodes<
   TEvent extends EventObject
 >(
   stateNode: StateNode<TContext, TEvent>,
-  state: StateValue | State<TContext, TEvent>
+  stateValue: StateValue
 ): Array<StateNode<TContext, TEvent>> {
-  const stateValue =
-    state instanceof State
-      ? state.value
-      : toStateValue(state, stateNode.machine.delimiter);
-
   if (isString(stateValue)) {
     return [stateNode.states[stateValue]];
   }

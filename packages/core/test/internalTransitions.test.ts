@@ -80,7 +80,7 @@ describe('internal transitions', () => {
   });
 
   it('parent state should only exit/reenter if there is an explicit self-transition', () => {
-    const resetState = wordMachine.transition('direction.center', 'RESET');
+    const resetState = wordMachine.transition({ direction: 'center' }, 'RESET');
 
     expect(resetState.value).toEqual({ direction: 'left' });
     expect(resetState.actions.map((a) => a.type)).toEqual([
@@ -91,7 +91,7 @@ describe('internal transitions', () => {
 
   it('parent state should only exit/reenter if there is an explicit self-transition (to child)', () => {
     const resetState = wordMachine.transition(
-      'direction.right',
+      { direction: 'right' },
       'RESET_TO_CENTER'
     );
 

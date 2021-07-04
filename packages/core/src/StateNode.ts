@@ -42,6 +42,7 @@ import {
 } from './stateUtils';
 import { evaluateGuard } from './guards';
 import { StateMachine } from './StateMachine';
+import { STATE_DELIMITER } from './constants';
 
 const EMPTY_OBJECT = {};
 
@@ -164,8 +165,7 @@ export class StateNode<
     this.machine = options._machine;
     this.path = this.parent ? this.parent.path.concat(this.key) : [];
     this.id =
-      this.config.id ||
-      [this.machine.key, ...this.path].join(this.machine.delimiter);
+      this.config.id || [this.machine.key, ...this.path].join(STATE_DELIMITER);
     this.type =
       this.config.type ||
       (this.config.states && keys(this.config.states).length

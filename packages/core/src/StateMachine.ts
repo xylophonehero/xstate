@@ -15,7 +15,6 @@ import {
 import { State } from './State';
 
 import { IS_PRODUCTION } from './environment';
-import { STATE_DELIMITER } from './constants';
 import {
   getConfiguration,
   getAllStateNodes,
@@ -68,11 +67,6 @@ export class StateMachine<
   public parent = undefined;
   public strict: boolean;
 
-  /**
-   * The string delimiter for serializing the path to a string. The default is "."
-   */
-  public delimiter: string;
-
   public options: MachineImplementations<TContext, TEvent>;
 
   public schema: MachineSchema<TContext, TEvent>;
@@ -104,7 +98,6 @@ export class StateMachine<
       ? config.context
       : () => config.context as TContext;
     // this.context = resolveContext(config.context, options?.context);
-    this.delimiter = this.config.delimiter || STATE_DELIMITER;
     this.version = this.config.version;
     this.schema = this.config.schema ?? (({} as any) as this['schema']);
     this.strict = !!this.config.strict;

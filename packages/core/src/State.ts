@@ -16,6 +16,7 @@ import { matchesState, keys, isString } from './utils';
 import { StateNode } from './StateNode';
 import { isInFinalState, nextEvents, getMeta } from './stateUtils';
 import { initEvent } from './actions';
+import { STATE_DELIMITER } from './constants';
 
 export function isState<
   TContext extends MachineContext,
@@ -224,7 +225,7 @@ export class State<
    */
   public toStrings(
     stateValue: StateValue = this.value,
-    delimiter: string = '.'
+    delimiter: string = STATE_DELIMITER
   ): string[] {
     if (isString(stateValue)) {
       return [stateValue];

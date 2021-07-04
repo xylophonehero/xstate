@@ -416,7 +416,7 @@ async function runTestToCompletion(
     }
     service.send(event.name);
 
-    const stateIds = getStateNodes(machine.root, nextState).map(
+    const stateIds = getStateNodes(machine.root, nextState.value).map(
       (stateNode) => stateNode.id
     );
 
@@ -461,9 +461,7 @@ describe('scxml', () => {
       ) as SCIONTest;
 
       execTest(`${testGroupName}/${testName}`, async () => {
-        const machine = toMachine(scxmlDefinition, {
-          delimiter: '$'
-        });
+        const machine = toMachine(scxmlDefinition);
 
         try {
           await runTestToCompletion(machine, scxmlTest);
