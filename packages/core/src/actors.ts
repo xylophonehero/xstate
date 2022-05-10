@@ -21,9 +21,7 @@ import type {
 import { AreAllImplementationsAssumedToBeProvided } from './typegenTypes';
 import {
   toSCXMLEvent,
-  isPromiseLike,
   isSCXMLEvent,
-  isFunction,
   toObserver,
   symbolObservable
 } from './utils';
@@ -92,19 +90,7 @@ export function fromCallback<TEvent extends EventObject>(
   let canceled = false;
   const receivers = new Set<(e: EventObject) => void>();
   const observers: Set<Observer<TODO>> = new Set();
-  let dispose;
-
-  const sendNext = (event: TODO) => {
-    observers.forEach((o) => o.next?.(event));
-  };
-
-  const sendError = (event: TODO) => {
-    observers.forEach((o) => o.error?.(event));
-  };
-
-  const sendComplete = () => {
-    observers.forEach((o) => o.complete?.());
-  };
+  let dispose: (() => void) | void;
 
   const behavior: Behavior<TEvent, undefined> = {
     transition: (_, event, actorContext) => {
@@ -124,27 +110,10 @@ export function fromCallback<TEvent extends EventObject>(
         };
 
         dispose = invokeCallback(sender, receiver);
-
-        if (isPromiseLike(dispose)) {
-          dispose.then(
-            (resolved) => {
-              sendNext(resolved);
-              sendComplete();
-              canceled = true;
-            },
-            (errorData) => {
-              sendError(errorData);
-              canceled = true;
-            }
-          );
-        }
         return undefined;
       } else if (event.type === stopSignalType) {
         canceled = true;
-
-        if (isFunction(dispose)) {
-          dispose();
-        }
+        dispose?.();
         return undefined;
       }
 

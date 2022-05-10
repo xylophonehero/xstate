@@ -388,7 +388,7 @@ export type InvokeCallback<
 > = (
   callback: Sender<TSentEvent>,
   onReceive: Receiver<TEvent>
-) => (() => void) | Promise<any> | void;
+) => (() => void) | void;
 
 export type BehaviorCreator<
   TContext extends MachineContext,
