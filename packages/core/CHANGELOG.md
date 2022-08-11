@@ -1,5 +1,19 @@
 # xstate
 
+## 5.0.0-alpha.1
+
+### Major Changes
+
+- [#3187](https://github.com/statelyai/xstate/pull/3187) [`c800dec47`](https://github.com/statelyai/xstate/commit/c800dec472da9fa9427fdb4b081406fadf68c6ad) Thanks [@davidkpiano](https://github.com/davidkpiano)! - The `createModel()` function has been removed in favor of relying on strong types in the machine configuration.
+
+### Patch Changes
+
+- [#3389](https://github.com/statelyai/xstate/pull/3389) [`aa8f5d5fd`](https://github.com/statelyai/xstate/commit/aa8f5d5fdd3b87e0cef7b4ba2d315a0c9260810d) Thanks [@Andarist](https://github.com/Andarist)! - Fixed the declared signature of one of the `StateMachine`'s methods to avoid using a private name `this`. This makes it possible to emit correct `.d.ts` for the associated file.
+
+* [#3374](https://github.com/statelyai/xstate/pull/3374) [`a990f0ed1`](https://github.com/statelyai/xstate/commit/a990f0ed19e3b69cbfaa7d36c1b5bcf4c36daea4) Thanks [@Andarist](https://github.com/Andarist)! - Fixed an issue with actors not being reinstantiated correctly when an actor with the same ID was first stopped and then invoked/spawned again in the same microstep.
+
+- [#3390](https://github.com/statelyai/xstate/pull/3390) [`7abc41759`](https://github.com/statelyai/xstate/commit/7abc417592ff9ec239c82410d0ec17dc93f6ba00) Thanks [@Andarist](https://github.com/Andarist)! - Added back UMD builds. Please note that XState now comes with multiple entrypoints and you might need to load all of them (`XState`, `XStateActions`, `XStateGuards`, etc.). It's also worth mentioning that those bundles don't reference each other so they don't actually share any code and some code might be duplicated between them.
+
 ## 4.33.1
 
 ### Patch Changes
@@ -150,10 +164,10 @@
   And creating your own custom dev tools adapter is a function that takes in the `service`:
 
   ```js
-  const myCustomDevTools = (service) => {
+  const myCustomDevTools = service => {
     console.log('Got a service!');
 
-    service.subscribe((state) => {
+    service.subscribe(state => {
       // ...
     });
   };
@@ -341,7 +355,7 @@
   let previousState;
 
   const service = interpret(someMachine)
-    .onTransition((state) => {
+    .onTransition(state => {
       // previousState represents the last state here
 
       // ...
@@ -540,7 +554,7 @@
   // This will
   const loggedInState = await waitFor(
     loginService,
-    (state) => state.hasTag('loggedIn'),
+    state => state.hasTag('loggedIn'),
     { timeout: Infinity }
   );
   ```
@@ -573,7 +587,7 @@
   // ...
   const loginService = interpret(loginMachine).start();
 
-  const loggedInState = await waitFor(loginService, (state) =>
+  const loggedInState = await waitFor(loginService, state =>
     state.hasTag('loggedIn')
   );
 
@@ -710,7 +724,7 @@
 
   ```js
   // Persisting a state
-  someService.subscribe((state) => {
+  someService.subscribe(state => {
     localStorage.setItem('some-state', JSON.stringify(state));
   });
 
@@ -966,10 +980,10 @@
 
   model.createMachine({
     // `ctx` was of type `any`
-    entry: (ctx) => {},
+    entry: ctx => {},
     exit: assign({
       // `ctx` was of type `unknown`
-      foo: (ctx) => 42
+      foo: ctx => 42
     })
   });
   ```
@@ -1145,11 +1159,11 @@
   const machine = createMachine({
     context: { count: 0 },
     entry: [
-      (ctx) => console.log(ctx.count), // 0
-      assign({ count: (ctx) => ctx.count + 1 }),
-      (ctx) => console.log(ctx.count), // 1
-      assign({ count: (ctx) => ctx.count + 1 }),
-      (ctx) => console.log(ctx.count) // 2
+      ctx => console.log(ctx.count), // 0
+      assign({ count: ctx => ctx.count + 1 }),
+      ctx => console.log(ctx.count), // 1
+      assign({ count: ctx => ctx.count + 1 }),
+      ctx => console.log(ctx.count) // 2
     ],
     preserveActionOrder: true
   });
@@ -1158,11 +1172,11 @@
   const machine = createMachine({
     context: { count: 0 },
     entry: [
-      (ctx) => console.log(ctx.count), // 2
-      assign({ count: (ctx) => ctx.count + 1 }),
-      (ctx) => console.log(ctx.count), // 2
-      assign({ count: (ctx) => ctx.count + 1 }),
-      (ctx) => console.log(ctx.count) // 2
+      ctx => console.log(ctx.count), // 2
+      assign({ count: ctx => ctx.count + 1 }),
+      ctx => console.log(ctx.count), // 2
+      assign({ count: ctx => ctx.count + 1 }),
+      ctx => console.log(ctx.count) // 2
     ]
     // preserveActionOrder: false
   });
@@ -1361,7 +1375,7 @@
   });
 
   const service = interpret(machine)
-    .onTransition((state) => {
+    .onTransition(state => {
       // Read promise value synchronously
       const resolvedValue = state.context.promiseRef?.getSnapshot();
       // => undefined (if promise not resolved yet)
@@ -1441,7 +1455,7 @@
     context: { value: 42 },
     on: {
       INC: {
-        actions: assign({ value: (ctx) => ctx.value + 1 })
+        actions: assign({ value: ctx => ctx.value + 1 })
       }
     }
   });
@@ -1701,7 +1715,7 @@
 
   ```js
   // ...
-  actions: stop((context) => context.someActor);
+  actions: stop(context => context.someActor);
   ```
 
 ### Patch Changes
@@ -1939,10 +1953,10 @@
   ```js
   entry: [
     choose([
-      { cond: (ctx) => ctx > 100, actions: raise('TOGGLE') },
+      { cond: ctx => ctx > 100, actions: raise('TOGGLE') },
       {
         cond: 'hasMagicBottle',
-        actions: [assign((ctx) => ({ counter: ctx.counter + 1 }))]
+        actions: [assign(ctx => ({ counter: ctx.counter + 1 }))]
       },
       { actions: ['fallbackAction'] }
     ])
